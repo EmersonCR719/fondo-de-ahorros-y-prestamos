@@ -8,6 +8,7 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import Inicio from './screens/Inicio'; 
 import Login from './screens/Login'; 
 import Register from './screens/Register';
+import Camara from './screens/Camara';
  
 const Drawer = createDrawerNavigator(); 
  
@@ -19,6 +20,7 @@ export default function App() {
           <Drawer.Screen name="Inicio" component={Inicio} /> 
           <Drawer.Screen name="Login" component={Login} /> 
           <Drawer.Screen name="Register" component={Register}/>
+          <Drawer.Screen name="Camara" component={Camara}/>
         </Drawer.Navigator> 
       </NavigationContainer> 
     </PaperProvider> 

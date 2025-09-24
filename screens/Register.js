@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Appbar, TextInput, Button, Text } from 'react-native-paper';
 import { supabase } from '../supabase';
 
-export default function Register() {
+export default function Register({ navigation }) {  
   const [usuario, setUsuario] = useState('');
   const [correo, setCorreo] = useState('');
   const [contraseña, setContraseña] = useState('');
@@ -67,6 +67,13 @@ export default function Register() {
       </Button>
 
       {mensaje ? <Text style={styles.mensaje}>{mensaje}</Text> : null}
+
+      {/* Link para iniciar sesión */}
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.link}>
+          ¿Ya tienes cuenta? <Text style={styles.linkBold}>Inicia sesión</Text>
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -76,4 +83,6 @@ const styles = StyleSheet.create({
   input: { marginBottom: 12 },
   button: { marginTop: 10 },
   mensaje: { marginTop: 15, textAlign: 'center', color: 'blue' },
+  link: { marginTop: 20, textAlign: 'center', color: '#333' },
+  linkBold: { color: '#00C853', fontWeight: 'bold' }, // verde para resaltar
 });
