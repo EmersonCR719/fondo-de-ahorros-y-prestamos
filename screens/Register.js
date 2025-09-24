@@ -1,36 +1,82 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Appbar, TextInput, Button, Text } from 'react-native-paper';
+import { Picker } from '@react-native-picker/picker';
 import { supabase } from '../supabase';
 
-export default function Register({ navigation }) {  
+export default function Register({ navigation }) {
   const [usuario, setUsuario] = useState('');
   const [correo, setCorreo] = useState('');
   const [contraseña, setContraseña] = useState('');
+  const [fechaNacimiento, setFechaNacimiento] = useState('');
+  const [rol, setRol] = useState('cliente'); // valor por defecto
   const [mensaje, setMensaje] = useState('');
 
+  // Validar mayoría de edad
+  const esMayorDeEdad = (fecha) => {
+    const hoy = new Date();
+    const nacimiento = new Date(fecha);
+    const edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+    return (
+      edad > 18 || (edad === 18 && mes >= 0 && hoy.getDate() >= nacimiento.getDate())
+    );
+  };
+
   const handleRegister = async () => {
-    if (!usuario.trim() || !correo.trim() || !contraseña.trim()) {
+    if (!usuario.trim() || !correo.trim() || !contraseña.trim() || !fechaNacimiento.trim()) {
       setMensaje('Por favor completa todos los campos.');
       return;
     }
 
-    // Registrar usuario en Supabase Auth
-    const { data, error } = await supabase.auth.signUp({
-      email: correo,
-      password: contraseña,
-      options: {
-        data: { usuario }, // Guardamos el nombre de usuario en metadata
-      },
-    });
+    if (!esMayorDeEdad(fechaNacimiento)) {
+      setMensaje('Debes ser mayor de 18 años para registrarte.');
+      return;
+    }
+
+    // Verificar si ya existe el correo
+    const { data: existente, error: errorCheck } = await supabase
+      .from('usuarios')
+      .select('id')
+      .eq('email', correo)
+      .maybeSingle();
+
+    if (errorCheck) {
+      setMensaje(`Error verificando usuario: ${errorCheck.message}`);
+      return;
+    }
+
+    if (existente) {
+      setMensaje('Este correo ya está registrado.');
+      return;
+    }
+
+    // Insertar en la tabla usuarios
+    const { data, error } = await supabase
+      .from('usuarios')
+      .insert([
+        {
+          nombre: usuario,
+          email: correo,
+          password: contraseña, // sin encriptar por ahora
+          rol: rol,             // cliente o asociado
+          fecha_nacimiento: fechaNacimiento,
+          created_at: new Date(),
+        },
+      ])
+      .select()
+      .single();
 
     if (error) {
       setMensaje(`Error: ${error.message}`);
     } else {
-      setMensaje('Registro exitoso. Revisa tu correo para confirmar la cuenta.');
+      setMensaje('Registro exitoso. Ya puedes iniciar sesión.');
       setUsuario('');
       setCorreo('');
       setContraseña('');
+      setFechaNacimiento('');
+      setRol('cliente');
+      console.log('Nuevo usuario:', data);
     }
   };
 
@@ -61,6 +107,24 @@ export default function Register({ navigation }) {
         secureTextEntry
         style={styles.input}
       />
+      <TextInput
+        label="Fecha de nacimiento (YYYY-MM-DD)"
+        value={fechaNacimiento}
+        onChangeText={setFechaNacimiento}
+        placeholder="Ejemplo: 2000-05-20"
+        style={styles.input}
+      />
+
+      <Text style={styles.label}>Selecciona tu rol</Text>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={rol}
+          onValueChange={(itemValue) => setRol(itemValue)}
+        >
+          <Picker.Item label="Cliente" value="cliente" />
+          <Picker.Item label="Asociado" value="asociado" />
+        </Picker>
+      </View>
 
       <Button mode="contained" onPress={handleRegister} style={styles.button}>
         Registrarme
@@ -84,5 +148,12 @@ const styles = StyleSheet.create({
   button: { marginTop: 10 },
   mensaje: { marginTop: 15, textAlign: 'center', color: 'blue' },
   link: { marginTop: 20, textAlign: 'center', color: '#333' },
-  linkBold: { color: '#00C853', fontWeight: 'bold' }, // verde para resaltar
+  linkBold: { color: '#00C853', fontWeight: 'bold' },
+  label: { marginTop: 10, marginBottom: 5, fontWeight: 'bold' },
+  pickerContainer: {
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: '#ccc',
+    marginBottom: 16,
+  },
 });

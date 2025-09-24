@@ -14,18 +14,30 @@ export default function Login({ navigation }) {
       return;
     }
 
-    // Intentar iniciar sesión con Supabase
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: correo,
-      password: contraseña,
-    });
+    // Buscar usuario en la tabla `usuarios`
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('*')
+      .eq('email', correo)
+      .single(); // trae solo un usuario
 
-    if (error) {
-      setMensaje(`Error: ${error.message}`);
-    } else {
+    if (error || !data) {
+      setMensaje('Correo no registrado.');
+      return;
+    }
+
+    // Comparar contraseña (sin encriptar, por ahora)
+    if (data.password === contraseña) {
       setMensaje('¡Inicio de sesión exitoso!');
-      console.log('Usuario:', data.user);   // Datos del usuario
-      console.log('Sesión:', data.session); // Token de sesión (JWT)
+      console.log('Usuario:', data);
+
+      //Redirigir a la pantalla "Camara" después de 1 segundos
+      setTimeout(() => {
+        navigation.navigate('Camara', { usuario: data });
+      }, 1000);
+
+    } else {
+      setMensaje('Contraseña incorrecta.');
     }
   };
 
@@ -58,7 +70,8 @@ export default function Login({ navigation }) {
       {/* Enlace a registro */}
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={styles.linkText}>
-          ¿No tienes cuenta? <Text style={styles.linkHighlight}>Regístrate</Text>
+          ¿No tienes cuenta?{' '}
+          <Text style={styles.linkHighlight}>Regístrate</Text>
         </Text>
       </TouchableOpacity>
 
