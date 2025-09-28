@@ -40,6 +40,18 @@ export async function registrarAhorro(usuarioId, monto, descripcion, firma) {
   return data
 }
 
+// Obtener todos los retiros de un usuario
+export async function obtenerRetiros(usuarioId) {
+  const { data, error } = await supabase
+    .from('retiros')
+    .select('*')
+    .eq('usuario_id', usuarioId)
+    .order('fecha_retiro', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+
 // Solicitar retiro (programado con 1 mes de anticipación)
 export async function solicitarRetiro(usuarioId, ahorroId, fechaProgramada) {
   const { data, error } = await supabase
