@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Appbar, TextInput, Button, Text } from 'react-native-paper';
+import { Appbar, TextInput, Button, Text, Checkbox } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
-import { supabase } from '../supabase';
+import { supabase } from '../../supabase';
 
 export default function Register({ navigation }) {
   const [usuario, setUsuario] = useState('');
@@ -10,12 +10,19 @@ export default function Register({ navigation }) {
   const [contraseña, setContraseña] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState('');
   const [rol, setRol] = useState('cliente'); // valor por defecto
+  const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [mensaje, setMensaje] = useState('');
 
-  // Validar mayoría de edad
+  // Validar mayoría de edad y fecha no futura
   const esMayorDeEdad = (fecha) => {
     const hoy = new Date();
     const nacimiento = new Date(fecha);
+
+    // Verificar que la fecha no sea futura
+    if (nacimiento > hoy) {
+      return false;
+    }
+
     const edad = hoy.getFullYear() - nacimiento.getFullYear();
     const mes = hoy.getMonth() - nacimiento.getMonth();
     return (
@@ -29,8 +36,19 @@ export default function Register({ navigation }) {
       return;
     }
 
+    if (!aceptaTerminos) {
+      setMensaje('Debes aceptar los Términos y Condiciones para registrarte.');
+      return;
+    }
+
     if (!esMayorDeEdad(fechaNacimiento)) {
-      setMensaje('Debes ser mayor de 18 años para registrarte.');
+      const nacimiento = new Date(fechaNacimiento);
+      const hoy = new Date();
+      if (nacimiento > hoy) {
+        setMensaje('La fecha de nacimiento no puede ser futura.');
+      } else {
+        setMensaje('Debes ser mayor de 18 años para registrarte.');
+      }
       return;
     }
 
@@ -59,8 +77,9 @@ export default function Register({ navigation }) {
           nombre: usuario,
           email: correo,
           password: contraseña, // sin encriptar por ahora
-          rol: rol,             // cliente o asociado
+          rol: rol,
           fecha_nacimiento: fechaNacimiento,
+          acepta_terminos: true, // se guarda aceptación
           created_at: new Date(),
         },
       ])
@@ -76,6 +95,7 @@ export default function Register({ navigation }) {
       setContraseña('');
       setFechaNacimiento('');
       setRol('cliente');
+      setAceptaTerminos(false);
       console.log('Nuevo usuario:', data);
     }
   };
@@ -126,7 +146,27 @@ export default function Register({ navigation }) {
         </Picker>
       </View>
 
-      <Button mode="contained" onPress={handleRegister} style={styles.button}>
+      {/* Checkbox de Términos y Condiciones */}
+      <View style={styles.checkboxContainer}>
+        <Checkbox
+          status={aceptaTerminos ? 'checked' : 'unchecked'}
+          onPress={() => setAceptaTerminos(!aceptaTerminos)}
+          color="#00C853"
+        />
+        <TouchableOpacity onPress={() => navigation.navigate('TermsAndConditions', {
+          onAccept: () => setAceptaTerminos(true)
+        })}>
+          <Text style={styles.checkboxText}>
+            Acepto los <Text style={styles.linkBold}>Términos y Condiciones</Text>
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <Button
+        mode="contained"
+        onPress={handleRegister}
+        style={styles.button}
+      >
         Registrarme
       </Button>
 
@@ -155,5 +195,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderColor: '#ccc',
     marginBottom: 16,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  checkboxText: {
+    fontSize: 15,
+    color: '#333',
   },
 });

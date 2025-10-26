@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Appbar, TextInput, Button, Text } from 'react-native-paper';
-import { supabase } from '../supabase';
+import { supabase } from '../../supabase';
+import { useAuth } from '../../AuthContext';
 
 export default function Login({ navigation }) {
+  const { login } = useAuth();
   const [correo, setCorreo] = useState('');
   const [contraseña, setContraseña] = useState('');
   const [mensaje, setMensaje] = useState('');
@@ -31,11 +33,16 @@ export default function Login({ navigation }) {
       setMensaje('¡Inicio de sesión exitoso!');
       console.log('Usuario:', data);
 
-      //Redirigir a la pantalla "Camara" después de 1 segundos
-      setTimeout(() => {
-        navigation.navigate('Camara', { usuario: data });
-      }, 1000);
+      // Set user in auth context
+      login(data);
 
+      setTimeout(() => {
+        if (data.rol === 'admin') {
+          navigation.navigate('Admin', { screen: 'AdminPanel', params: { usuario: data } });
+        } else {
+          navigation.navigate('Camara', { usuario: data });
+        }
+      }, 1000);
     } else {
       setMensaje('Contraseña incorrecta.');
     }

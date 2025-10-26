@@ -7,7 +7,7 @@ export default function Inicio({ navigation }) {
       {/* Encabezado */}
       <View style={styles.header}>
         <Image
-          source={require('../assets/budget.png')} 
+          source={require('../../assets/budget.png')}
           style={styles.logo}
         />
         <Text style={styles.headerText}>FAP</Text>
@@ -16,7 +16,7 @@ export default function Inicio({ navigation }) {
 
       {/* Imagen principal */}
       <Image
-        source={require('../assets/pigImg.jpg')} 
+        source={require('../../assets/pigImg.jpg')}
         style={styles.pigImage}
       />
 
