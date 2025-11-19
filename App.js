@@ -14,6 +14,10 @@ import Register from './screens/usuarios/Register';
 import AccountSettings from './screens/usuarios/AccountSettings';
 import TermsAndConditions from './screens/usuarios/TermsAndConditions';
 import ProfilePhoto from './screens/usuarios/ProfilePhoto';
+import MeetingManagement from './screens/usuarios/MeetingManagement';
+import LoanManagement from './screens/usuarios/LoanManagement';
+import PaymentRegistration from './screens/usuarios/PaymentRegistration';
+import ManagementFeePayment from './screens/usuarios/ManagementFeePayment';
 
 // 🧩 Admin CRUD screens
 import CrudUsuarios from './screens/crud/CrudUsuarios';
@@ -25,7 +29,6 @@ import ManagementFeeManager from './screens/admin/ManagementFeeManager';
 import LoanRequest from './screens/usuarios/LoanRequest';
 import LoanApproval from './screens/admin/LoanApproval';
 import InterestRateManager from './screens/admin/InterestRateManager';
-import MeetingScheduler from './screens/admin/MeetingScheduler';
 import MeetingAttendance from './screens/usuarios/MeetingAttendance';
 import StatementGenerator from './screens/usuarios/StatementGenerator';
 import ReportsDashboard from './screens/admin/ReportsDashboard';
@@ -129,16 +132,30 @@ function AppNavigator() {
 
           {/* Préstamos */}
           <Drawer.Screen
-            name="LoanRequest"
-            component={LoanRequest}
-            options={{ title: 'Solicitar Préstamo' }}
+            name="LoanManagement"
+            component={LoanManagement}
+            options={{ title: 'Gestión de Préstamos' }}
           />
 
           {/* Reuniones */}
           <Drawer.Screen
-            name="MeetingAttendance"
-            component={MeetingAttendance}
-            options={{ title: 'Asistencia Reuniones' }}
+            name="MeetingManagement"
+            component={MeetingManagement}
+            options={{ title: 'Gestión de Reuniones' }}
+          />
+
+          {/* Registro de pagos */}
+          <Drawer.Screen
+            name="PaymentRegistration"
+            component={PaymentRegistration}
+            options={{ title: 'Registro de Pagos' }}
+          />
+
+          {/* Pago de cuota de manejo */}
+          <Drawer.Screen
+            name="ManagementFeePayment"
+            component={ManagementFeePayment}
+            options={{ title: 'Pago Cuota Manejo' }}
           />
 
           {/* Estados de Cuenta */}
@@ -162,12 +179,14 @@ function AppNavigator() {
             options={{ title: 'Firma Digital' }}
           />
 
-          {/* Reportes */}
-          <Drawer.Screen
-            name="ReportsDashboard"
-            component={ReportsDashboard}
-            options={{ title: 'Reportes y Estadísticas' }}
-          />
+          {/* Reportes - Solo para admin */}
+          {user.rol === 'admin' && (
+            <Drawer.Screen
+              name="ReportsDashboard"
+              component={ReportsDashboard}
+              options={{ title: 'Reportes y Estadísticas' }}
+            />
+          )}
 
           {/* Configuración de cuenta */}
           <Drawer.Screen

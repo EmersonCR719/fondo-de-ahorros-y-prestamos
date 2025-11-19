@@ -62,8 +62,9 @@ export default function SignatureCapture({ navigation, route }) {
         </svg>
       `;
 
-      // Convert SVG to blob
-      const svgBlob = new Blob([svgData], { type: 'image/svg+xml' });
+      // Convert SVG string to Uint8Array for React Native compatibility
+      const encoder = new TextEncoder();
+      const uint8Array = encoder.encode(svgData);
 
       // Upload to Supabase Storage
       const fileName = `signature_${user.id}_${context}_${Date.now()}.svg`;
@@ -71,7 +72,7 @@ export default function SignatureCapture({ navigation, route }) {
 
       const { data, error } = await supabase.storage
         .from('firmas_digitales')
-        .upload(filePath, svgBlob, {
+        .upload(filePath, uint8Array, {
           contentType: 'image/svg+xml',
           upsert: true,
         });
@@ -91,7 +92,6 @@ export default function SignatureCapture({ navigation, route }) {
           usuario_id: user.id,
           firma_url: signatureUrl,
           contexto: context,
-          fecha_firma: new Date().toISOString(),
           created_at: new Date(),
         });
 

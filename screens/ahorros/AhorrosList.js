@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, FlatList, Button, ActivityIndicator, StyleSheet } from 'react-native'
 import { getAhorros } from '../../services/ahorros'
+import { useAuth } from '../../AuthContext'
 
 export default function AhorrosList({ navigation }) {
+  const { user } = useAuth()
   const [ahorros, setAhorros] = useState([])
   const [loading, setLoading] = useState(true)
 
-  //Usuario de prueba
-  const usuarioId = "ID-DE-USUARIO-DE-PRUEBA"
+  const usuarioId = user?.id
 
   useEffect(() => {
     async function fetchAhorros() {

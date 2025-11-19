@@ -8,6 +8,8 @@ export default function Register({ navigation }) {
   const [usuario, setUsuario] = useState('');
   const [correo, setCorreo] = useState('');
   const [contraseña, setContraseña] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [direccion, setDireccion] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState('');
   const [rol, setRol] = useState('cliente'); // valor por defecto
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
@@ -31,7 +33,7 @@ export default function Register({ navigation }) {
   };
 
   const handleRegister = async () => {
-    if (!usuario.trim() || !correo.trim() || !contraseña.trim() || !fechaNacimiento.trim()) {
+    if (!usuario.trim() || !correo.trim() || !contraseña.trim() || !telefono.trim() || !direccion.trim() || !fechaNacimiento.trim()) {
       setMensaje('Por favor completa todos los campos.');
       return;
     }
@@ -76,8 +78,9 @@ export default function Register({ navigation }) {
         {
           nombre: usuario,
           email: correo,
-          password: contraseña, // sin encriptar por ahora
-          rol: rol,
+          password_hash: contraseña, // sin encriptar por ahora
+          telefono: telefono,
+          direccion: direccion,
           fecha_nacimiento: fechaNacimiento,
           acepta_terminos: true, // se guarda aceptación
           created_at: new Date(),
@@ -93,6 +96,8 @@ export default function Register({ navigation }) {
       setUsuario('');
       setCorreo('');
       setContraseña('');
+      setTelefono('');
+      setDireccion('');
       setFechaNacimiento('');
       setRol('cliente');
       setAceptaTerminos(false);
@@ -125,6 +130,19 @@ export default function Register({ navigation }) {
         value={contraseña}
         onChangeText={setContraseña}
         secureTextEntry
+        style={styles.input}
+      />
+      <TextInput
+        label="Teléfono"
+        value={telefono}
+        onChangeText={setTelefono}
+        keyboardType="phone-pad"
+        style={styles.input}
+      />
+      <TextInput
+        label="Dirección"
+        value={direccion}
+        onChangeText={setDireccion}
         style={styles.input}
       />
       <TextInput

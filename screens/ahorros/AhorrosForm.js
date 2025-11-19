@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native'
 import { registrarAhorro } from '../../services/ahorros'
+import { useAuth } from '../../AuthContext'
 
 export default function AhorrosForm({ navigation }) {
+  const { user } = useAuth()
   const [monto, setMonto] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [loading, setLoading] = useState(false)
 
-  //Usuario de prueba
-  const usuarioId = "ID-DE-USUARIO-DE-PRUEBA"
+  const usuarioId = user?.id
 
   const handleGuardar = async () => {
     if (!monto) {

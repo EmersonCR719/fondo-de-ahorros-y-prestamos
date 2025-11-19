@@ -109,7 +109,7 @@ export default function CrudUsuarios({ navigation }) {
       };
 
       if (password.trim()) {
-        userData.password = password.trim();
+        userData.password_hash = password.trim();
       }
 
       if (editingUser) {

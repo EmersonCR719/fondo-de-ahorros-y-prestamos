@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Appbar, Text, Button, Card, TextInput, List, Divider, Switch } from 'react-native-paper';
+import { Appbar, Text, Button, Card, TextInput, List, Divider } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { supabase } from '../../supabase';
+import { useAuth } from '../../AuthContext';
 
 export default function MeetingScheduler({ navigation }) {
+  const { user } = useAuth();
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -14,11 +16,7 @@ export default function MeetingScheduler({ navigation }) {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
-  const [type, setType] = useState('presencial');
   const [location, setLocation] = useState('');
-  const [virtualLink, setVirtualLink] = useState('');
-  const [cost, setCost] = useState('');
-  const [maxAttendees, setMaxAttendees] = useState('');
 
   useEffect(() => {
     loadMeetings();
@@ -45,6 +43,7 @@ export default function MeetingScheduler({ navigation }) {
     setTitle('');
     setDescription('');
     setDate('');
+    setTime('');
     setLocation('');
   };
 
@@ -65,8 +64,8 @@ export default function MeetingScheduler({ navigation }) {
       const meetingData = {
         titulo: title,
         descripcion: description,
-        fecha: `${date}T${time}:00`,
-        lugar: type === 'presencial' ? location : null,
+        fecha: `${date}T${time || '00:00'}:00`,
+        lugar: location,
         estado: 'programada',
         created_at: new Date(),
       };
@@ -196,6 +195,14 @@ export default function MeetingScheduler({ navigation }) {
               />
 
               <TextInput
+                label="Hora (HH:MM)"
+                value={time}
+                onChangeText={setTime}
+                placeholder="Ej: 14:30"
+                style={styles.input}
+              />
+
+              <TextInput
                 label="Lugar"
                 value={location}
                 onChangeText={setLocation}
@@ -278,13 +285,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   input: { marginBottom: 12 },
-  label: { marginTop: 10, marginBottom: 5, fontWeight: 'bold' },
-  pickerContainer: {
-    borderWidth: 1,
-    borderRadius: 8,
-    borderColor: '#ccc',
-    marginBottom: 16,
-  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',

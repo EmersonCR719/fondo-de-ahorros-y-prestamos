@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { View, Text, ScrollView, Dimensions, StyleSheet } from 'react-native'
 import { BarChart, PieChart, LineChart } from 'react-native-chart-kit'
 import { obtenerAhorros, obtenerRetiros } from '../../services/ahorros'
+import { useAuth } from '../../AuthContext'
 
 export default function ReportesScreen() {
+  const { user } = useAuth()
   const [ahorros, setAhorros] = useState([])
   const [retiros, setRetiros] = useState([])
 
-  //Usuario de prueba
-  const usuarioId = "ID-DE-USUARIO-DE-PRUEBA"
+  const usuarioId = user?.id
 
   useEffect(() => {
     const fetchData = async () => {

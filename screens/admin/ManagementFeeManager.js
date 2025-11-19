@@ -20,16 +20,15 @@ export default function ManagementFeeManager({ navigation }) {
     try {
       const { data, error } = await supabase
         .from('configuracion')
-        .select('cuota_manejo_anual, deduccion_automatica_cuota')
-        .eq('id', 1)
+        .select('costo_manejo_anual, deduccion_automatica')
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
 
       if (data) {
         setCurrentConfig(data);
-        setFeeAmount(data.cuota_manejo_anual?.toString() || '');
-        setAutoDeduct(data.deduccion_automatica_cuota || true);
+        setFeeAmount(data.costo_manejo_anual?.toString() || '');
+        setAutoDeduct(data.deduccion_automatica || false);
       }
     } catch (error) {
       console.error('Error loading config:', error);
@@ -66,17 +65,16 @@ export default function ManagementFeeManager({ navigation }) {
       const { error } = await supabase
         .from('configuracion')
         .upsert({
-          id: 1,
-          cuota_manejo_anual: feeValue,
-          deduccion_automatica_cuota: autoDeduct,
+          costo_manejo_anual: feeValue,
+          deduccion_automatica: autoDeduct,
           updated_at: new Date(),
         });
 
       if (error) throw error;
 
       setCurrentConfig({
-        cuota_manejo_anual: feeValue,
-        deduccion_automatica_cuota: autoDeduct,
+        costo_manejo_anual: feeValue,
+        deduccion_automatica: autoDeduct,
       });
 
       Alert.alert('Éxito', 'Configuración de cuota de manejo actualizada correctamente');
@@ -103,21 +101,21 @@ export default function ManagementFeeManager({ navigation }) {
       if (error) throw error;
 
       const totalPaid = payments?.reduce((sum, payment) => sum + payment.monto, 0) || 0;
-      const isPaid = totalPaid >= (currentConfig?.cuota_manejo_anual || 0);
+      const isPaid = totalPaid >= (currentConfig?.costo_manejo_anual || 0);
 
       return {
         isPaid,
         totalPaid,
-        remaining: Math.max(0, (currentConfig?.cuota_manejo_anual || 0) - totalPaid),
+        remaining: Math.max(0, (currentConfig?.costo_manejo_anual || 0) - totalPaid),
       };
     } catch (error) {
       console.error('Error checking fee status:', error);
-      return { isPaid: false, totalPaid: 0, remaining: currentConfig?.cuota_manejo_anual || 0 };
+      return { isPaid: false, totalPaid: 0, remaining: currentConfig?.costo_manejo_anual || 0 };
     }
   };
 
   const applyAutomaticDeduction = async () => {
-    if (!autoDeduct || !currentConfig?.cuota_manejo_anual) {
+    if (!autoDeduct || !currentConfig?.costo_manejo_anual) {
       Alert.alert('Error', 'La deducción automática no está habilitada o no hay cuota configurada');
       return;
     }
@@ -212,7 +210,7 @@ export default function ManagementFeeManager({ navigation }) {
           <Card.Title title="Configuración de Cuota Anual" />
           <Card.Content>
             <Text style={styles.currentFee}>
-              Cuota actual: ${currentConfig?.cuota_manejo_anual?.toLocaleString() || 'No definida'}
+              Cuota actual: ${currentConfig?.costo_manejo_anual?.toLocaleString() || 'No definida'}
             </Text>
 
             <TextInput

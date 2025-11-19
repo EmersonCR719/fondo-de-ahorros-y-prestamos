@@ -18,8 +18,7 @@ export default function InterestRateManager({ navigation }) {
     try {
       const { data, error } = await supabase
         .from('configuracion')
-        .select('tasa_interes_asociados, tasa_interes_clientes, proxima_actualizacion_tasas')
-        .eq('id', 1)
+        .select('tasa_interes_asociados, tasa_interes_clientes, proxima_actualizacion')
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
@@ -28,7 +27,7 @@ export default function InterestRateManager({ navigation }) {
         setCurrentRates(data);
         setAssociateRate((data.tasa_interes_asociados * 100).toString());
         setClientRate((data.tasa_interes_clientes * 100).toString());
-        setNextAdjustment(data.proxima_actualizacion_tasas || '');
+        setNextAdjustment(data.proxima_actualizacion || '');
       } else {
         // Valores por defecto
         setAssociateRate('2');
@@ -68,10 +67,9 @@ export default function InterestRateManager({ navigation }) {
       const { error } = await supabase
         .from('configuracion')
         .upsert({
-          id: 1,
           tasa_interes_asociados: associateDecimal,
           tasa_interes_clientes: clientDecimal,
-          proxima_actualizacion_tasas: nextAdjustment || null,
+          proxima_actualizacion: nextAdjustment || null,
           updated_at: new Date(),
         });
 
@@ -80,7 +78,7 @@ export default function InterestRateManager({ navigation }) {
       setCurrentRates({
         tasa_interes_asociados: associateDecimal,
         tasa_interes_clientes: clientDecimal,
-        proxima_actualizacion_tasas: nextAdjustment,
+        proxima_actualizacion: nextAdjustment,
       });
 
       Alert.alert('Éxito', 'Tasas de interés actualizadas correctamente');
@@ -136,9 +134,9 @@ export default function InterestRateManager({ navigation }) {
             <Text style={styles.currentRate}>
               Clientes: {currentRates?.tasa_interes_clientes ? (currentRates.tasa_interes_clientes * 100).toFixed(1) : '2.5'}%
             </Text>
-            {currentRates?.proxima_actualizacion_tasas && (
+            {currentRates?.proxima_actualizacion && (
               <Text style={styles.nextAdjustment}>
-                Próxima actualización: {new Date(currentRates.proxima_actualizacion_tasas).toLocaleDateString()}
+                Próxima actualización: {new Date(currentRates.proxima_actualizacion).toLocaleDateString()}
               </Text>
             )}
           </Card.Content>

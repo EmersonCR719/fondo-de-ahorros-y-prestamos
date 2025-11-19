@@ -72,9 +72,9 @@ export default function LoanRequest({ navigation }) {
           usuario_id: user.id,
           monto_solicitado: loanAmount,
           tasa_interes: interestRate,
-          proposito: purpose,
+          plazo_meses: 12, // Default 12 months
           estado: 'pendiente',
-          pago_mensual: monthlyPayment,
+          fecha_solicitud: new Date().toISOString().split('T')[0],
           created_at: new Date(),
         })
         .select()

@@ -17,7 +17,7 @@ export async function registrarAhorro(usuarioId, monto, descripcion, firma) {
   // Traer la configuración (cuota mínima)
   const { data: config, error: errorConfig } = await supabase
     .from('configuracion')
-    .select('cuota_minima')
+    .select('cuota_minima_mensual')
     .single()
 
   if (errorConfig) throw errorConfig
@@ -31,8 +31,9 @@ export async function registrarAhorro(usuarioId, monto, descripcion, firma) {
     .insert([{
       usuario_id: usuarioId,
       monto,
+      fecha: new Date().toISOString().split('T')[0],
       descripcion,
-      tipo: 'aporte',
+      tipo: 'deposito',
       firma
     }])
 
@@ -46,19 +47,19 @@ export async function obtenerRetiros(usuarioId) {
     .from('retiros')
     .select('*')
     .eq('usuario_id', usuarioId)
-    .order('fecha_retiro', { ascending: false })
+    .order('fecha', { ascending: false })
   if (error) throw error
   return data
 }
 
 
 // Solicitar retiro (programado con 1 mes de anticipación)
-export async function solicitarRetiro(usuarioId, ahorroId, fechaProgramada) {
+export async function solicitarRetiro(usuarioId, monto, fechaProgramada) {
   const { data, error } = await supabase
     .from('retiros_programados')
     .insert([{
       usuario_id: usuarioId,
-      ahorro_id: ahorroId,
+      monto: monto,
       fecha_programada: fechaProgramada
     }])
 

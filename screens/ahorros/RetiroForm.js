@@ -2,16 +2,17 @@ import React, { useState } from 'react'
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { registrarRetiro } from '../../services/ahorros'
+import { useAuth } from '../../AuthContext'
 
 export default function AhorrosRetiro({ navigation }) {
+  const { user } = useAuth()
   const [monto, setMonto] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [fechaRetiro, setFechaRetiro] = useState(new Date())
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  //Usuario de prueba
-  const usuarioId = "ID-DE-USUARIO-DE-PRUEBA"
+  const usuarioId = user?.id
 
   const handleGuardar = async () => {
     if (!monto) {

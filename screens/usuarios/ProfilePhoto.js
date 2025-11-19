@@ -60,16 +60,24 @@ export default function ProfilePhoto({ navigation, route }) {
 
   const uploadPhoto = async (uri) => {
     try {
-      const response = await fetch(uri);
-      const blob = await response.blob();
+      // For React Native, we need to handle the file differently
+      // Get the file extension from URI
+      const fileExtension = uri.split('.').pop().toLowerCase();
+      const mimeType = fileExtension === 'png' ? 'image/png' : 'image/jpeg';
 
-      const fileName = `profile_${user.id}_${Date.now()}.jpg`;
+      const response = await fetch(uri);
+      const arrayBuffer = await response.arrayBuffer();
+
+      // Convert ArrayBuffer to Uint8Array for React Native compatibility
+      const uint8Array = new Uint8Array(arrayBuffer);
+
+      const fileName = `profile_${user.id}_${Date.now()}.${fileExtension}`;
       const filePath = `profiles/${fileName}`;
 
       const { data, error } = await supabase.storage
         .from('fotos_perfil')
-        .upload(filePath, blob, {
-          contentType: 'image/jpeg',
+        .upload(filePath, uint8Array, {
+          contentType: mimeType,
           upsert: true,
         });
 

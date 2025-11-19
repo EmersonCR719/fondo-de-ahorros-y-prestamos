@@ -133,8 +133,7 @@ export const saveAttendanceOffline = async (attendanceData) => {
       ...attendanceData,
       id: `offline_${Date.now()}_${Math.random()}`,
       offline: true,
-      fecha_asistencia: new Date().toISOString().split('T')[0],
-      hora_asistencia: new Date().toTimeString().split(' ')[0],
+      asistio: true,
       created_at: new Date().toISOString(),
     };
 
@@ -255,9 +254,7 @@ export const syncOfflineData = async (userId) => {
           .insert({
             reunion_id: attendance.reunion_id,
             usuario_id: userId,
-            fecha_asistencia: attendance.fecha_asistencia,
-            hora_asistencia: attendance.hora_asistencia,
-            metodo_validacion: attendance.metodo_validacion,
+            asistio: true,
           });
 
         if (!error) {

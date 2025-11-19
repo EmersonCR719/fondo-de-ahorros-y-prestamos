@@ -20,7 +20,6 @@ export default function SavingsQuotaManager({ navigation }) {
       const { data, error } = await supabase
         .from('configuracion')
         .select('cuota_minima_mensual')
-        .eq('id', 1)
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
@@ -64,7 +63,6 @@ export default function SavingsQuotaManager({ navigation }) {
       const { error } = await supabase
         .from('configuracion')
         .upsert({
-          id: 1,
           cuota_minima_mensual: quotaValue,
           updated_at: new Date(),
         });

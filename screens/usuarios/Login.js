@@ -29,7 +29,7 @@ export default function Login({ navigation }) {
     }
 
     // Comparar contraseña (sin encriptar, por ahora)
-    if (data.password === contraseña) {
+    if (data.password_hash === contraseña) {
       setMensaje('¡Inicio de sesión exitoso!');
       console.log('Usuario:', data);
 
@@ -40,7 +40,7 @@ export default function Login({ navigation }) {
         if (data.rol === 'admin') {
           navigation.navigate('Admin', { screen: 'AdminPanel', params: { usuario: data } });
         } else {
-          navigation.navigate('Camara', { usuario: data });
+          navigation.navigate('Ahorros', { screen: 'AhorrosList', params: { usuario: data } });
         }
       }, 1000);
     } else {

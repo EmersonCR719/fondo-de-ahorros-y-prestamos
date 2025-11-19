@@ -24,8 +24,7 @@ export default function MeetingAttendance({ navigation }) {
         .select('*')
         .eq('estado', 'programada')
         .gte('fecha', today)
-        .order('fecha', { ascending: true })
-        .order('hora', { ascending: true });
+        .order('fecha', { ascending: true });
 
       if (error) throw error;
       setUpcomingMeetings(data || []);
@@ -63,30 +62,13 @@ export default function MeetingAttendance({ navigation }) {
         return;
       }
 
-      // For in-person meetings, validate GPS location
-      if (meeting.tipo === 'presencial') {
-        const locationValidation = await validateLocationForMeeting({
-          latitude: meeting.latitud || 0,
-          longitude: meeting.longitud || 0,
-        });
-
-        if (!locationValidation.valid) {
-          Alert.alert(
-            'Ubicación Inválida',
-            locationValidation.message,
-            [{ text: 'OK' }]
-          );
-          return;
-        }
-      }
+      // GPS validation could be added here if needed
 
       // Register attendance
       const attendanceData = {
         reunion_id: meeting.id,
         usuario_id: user.id,
-        fecha_asistencia: new Date().toISOString().split('T')[0],
-        hora_asistencia: new Date().toTimeString().split(' ')[0],
-        metodo_validacion: meeting.tipo === 'presencial' ? 'gps' : 'manual',
+        asistio: true,
         created_at: new Date(),
       };
 
@@ -139,11 +121,10 @@ export default function MeetingAttendance({ navigation }) {
           .from('multas')
           .insert({
             usuario_id: user.id,
-            tipo_multa: 'inasistencia_reunion',
+            reunion_id: currentMeeting.id,
             monto: fineAmount,
-            descripcion: `Multa por ${absences} inasistencias a reuniones en ${currentMonth}/${currentYear}`,
+            razon: `Multa por ${absences} inasistencias a reuniones en ${currentMonth}/${currentYear}`,
             fecha_multa: new Date().toISOString().split('T')[0],
-            estado: 'pendiente',
             created_at: new Date(),
           });
 
@@ -198,22 +179,10 @@ export default function MeetingAttendance({ navigation }) {
             <Card key={meeting.id} style={styles.card}>
               <Card.Title
                 title={meeting.titulo}
-                subtitle={`${meeting.fecha} ${meeting.hora} - ${meeting.tipo}`}
+                subtitle={`${new Date(meeting.fecha).toLocaleDateString()} - ${meeting.lugar || 'Sin ubicación'}`}
               />
               <Card.Content>
                 <Text style={styles.description}>{meeting.descripcion}</Text>
-
-                {meeting.tipo === 'presencial' && meeting.ubicacion && (
-                  <Text style={styles.location}>📍 {meeting.ubicacion}</Text>
-                )}
-
-                {meeting.tipo === 'virtual' && meeting.enlace_virtual && (
-                  <Text style={styles.link}>🔗 {meeting.enlace_virtual}</Text>
-                )}
-
-                {meeting.costo_entrada > 0 && (
-                  <Text style={styles.cost}>💰 Costo: ${meeting.costo_entrada}</Text>
-                )}
 
                 <View style={styles.buttonContainer}>
                   <Button
